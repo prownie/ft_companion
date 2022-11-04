@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:ft_companion/utils/utils.dart';
 import 'package:neon_widgets/neon_widgets.dart';
+import 'pages.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -10,39 +12,54 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  Timer? _searchTimer;
+  List<dynamic> _profilesFound = [];
+  String _value = '';
   @override
-  void initState() {}
+  void initState() {
+    apiController.instance.getToken();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: oAppBar(
         context: context,
-        heading: 'Ft_companion',
+        heading: 'Swifty_companion',
       ),
       body: Container(
         child: Column(
           children: [
-            Spacer(flex: 1),
-            oNeonContainer(
-                child: Image.asset('assets/logo42Square.png',
-                    width: 80, height: 80),
-                borderWidth: 2,
-                borderRadius: BorderRadius.circular(20),
-                borderColor: Colors.purple),
-            Spacer(flex: 1),
+            // oNeonContainer(
+            //     child: Image.asset('assets/logo42Square.png',
+            //         width: 80, height: 80),
+            //     borderWidth: 2,
+            //     borderRadius: BorderRadius.circular(20),
+            //     borderColor: Colors.purple),
             oNeonSearchBar(
               hint: 'Search for a stud',
               borderWidth: 2,
               borderColor: Colors.purple,
               onSearchChanged: (value) {
-                print('searchChanged:' + value!);
+                if (_searchTimer != null) {
+                  _searchTimer!.cancel();
+                  _value = value!;
+                }
+                _searchTimer = Timer(Duration(milliseconds: 500), () async {
+                  _profilesFound = await apiController.instance
+                      .searchProfilesAutoCompletion(value!);
+                });
               },
-              onSearchTap: () {
-                print('onTap');
+              onSearchTap: () async {
+                var profile = await apiController.instance.searchUser(_value);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => profilePage(profile)));
               },
             ),
-            Spacer(flex: 5),
+
+            Spacer(flex: 1),
           ],
         ),
       ),
