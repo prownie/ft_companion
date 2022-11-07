@@ -124,28 +124,18 @@ class _profilePageState extends State<profilePage> {
                                             children: [
                                               Text('Coalitions'),
                                               Container(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors
-                                                        .blue, /*Color(
-                                                        StringToHex.toColor(
-                                                            coaData['color'])),*/
-                                                  ),
                                                   child: SvgPicture.network(
-                                                    width: 50.0,
-                                                    height: 50.0,
-                                                    // color: Colors.blue,
-                                                    // color: Color(
-                                                    //     StringToHex.toColor(
-                                                    //         coaData['color'])),
-                                                    coaData['image_url'],
-                                                  )),
+                                                coaData['image_url'],
+                                                width: 40.0,
+                                                height: 40.0,
+                                                color: Color(
+                                                    StringToHex.toColor(
+                                                        coaData['color'])),
+                                              )),
                                             ],
                                           ),
                                         ),
-                                        profileData['location'] != null
-                                            ? Text(profileData['location']
-                                                .toString())
-                                            : Text('Not connected'),
+                                        Text(coaData['name']),
                                       ],
                                     )
                                   : SizedBox.shrink(),

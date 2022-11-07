@@ -38,6 +38,7 @@ class apiController {
 
   Future<List<dynamic>> searchProfilesAutoCompletion(String value) async {
     //retrieve all users whose login starts with "value"
+    sleep(const Duration(seconds: 2));
     var response = await http.get(
       Uri.https(url42, '/v2/users', {'range[login]': '$value,${value}z'}),
       headers: {
@@ -59,7 +60,7 @@ class apiController {
 
   Future<dynamic> searchUser(String value, {int retry = 0}) async {
     //retrieve all users whose login starts with "value"
-    sleep(const Duration(milliseconds: 500));
+    sleep(const Duration(milliseconds: 2000));
     var response = await http.get(
       Uri.https(url42, '/v2/users/' + value),
       headers: {
@@ -86,7 +87,7 @@ class apiController {
 
   Future<dynamic> getCoalitionsData(String value, {int retry = 0}) async {
     //retrieve all users whose login starts with "value"
-    sleep(const Duration(milliseconds: 500));
+    sleep(const Duration(milliseconds: 2000));
     var response = await http.get(
       Uri.https(url42, '/v2/users/$value/coalitions'),
       headers: {

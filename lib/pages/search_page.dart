@@ -46,9 +46,10 @@ class _SearchPageState extends State<SearchPage> {
                   _searchTimer!.cancel();
                   _value = value!;
                 }
-                _searchTimer = Timer(Duration(milliseconds: 500), () async {
+                _searchTimer = Timer(Duration(seconds: 1), () async {
                   _profilesFound = await apiController.instance
                       .searchProfilesAutoCompletion(value!);
+                  print('in searchTimer');
                 });
               },
               onSearchTap: () async {
@@ -59,8 +60,8 @@ class _SearchPageState extends State<SearchPage> {
                         builder: (context) => profilePage(profile)));
               },
             ),
-
             Spacer(flex: 1),
+            
           ],
         ),
       ),
