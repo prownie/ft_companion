@@ -24,6 +24,7 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: oAppBar(
+        icon: Icons.person_search_rounded,
         context: context,
         heading: 'Swifty_companion',
       ),
