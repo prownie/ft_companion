@@ -13,11 +13,27 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   Timer? _searchTimer;
-  List<dynamic> _profilesFound = [];
+  List<dynamic>? _profilesFound;
   String _value = '';
+
   @override
   void initState() {
     apiController.instance.getToken();
+  }
+
+  void initData(List<dynamic> profilesFound) {
+    _profilesFound != null ? _profilesFound!.clear() : "";
+    List<dynamic> tmp = [];
+    late ImageProvider profilePicture;
+    for (dynamic profile in profilesFound) {
+      profilePicture = profile['image']['versions']['medium'] != null
+          ? Image.network(profile['image']['versions']['medium']).image
+          : AssetImage('assets/profile-placeholder.jpg');
+      tmp.add({'login': profile['login'], 'profilePicture': profilePicture});
+    }
+    setState(() {
+      _profilesFound = tmp;
+    });
   }
 
   @override
@@ -25,30 +41,26 @@ class _SearchPageState extends State<SearchPage> {
     return Scaffold(
       appBar: oAppBar(
         icon: Icons.person_search_rounded,
+        onTap: () {},
         context: context,
         heading: 'Swifty_companion',
       ),
       body: Container(
         child: Column(
           children: [
-            // oNeonContainer(
-            //     child: Image.asset('assets/logo42Square.png',
-            //         width: 80, height: 80),
-            //     borderWidth: 2,
-            //     borderRadius: BorderRadius.circular(20),
-            //     borderColor: Colors.purple),
             oNeonSearchBar(
               hint: 'Search for a stud',
               borderWidth: 2,
               borderColor: Colors.purple,
               onSearchChanged: (value) {
+                print('on search changed, new value:');
                 if (_searchTimer != null) {
                   _searchTimer!.cancel();
                   _value = value!;
                 }
                 _searchTimer = Timer(Duration(seconds: 1), () async {
-                  _profilesFound = await apiController.instance
-                      .searchProfilesAutoCompletion(value!);
+                  initData(await apiController.instance
+                      .searchProfilesAutoCompletion(value!));
                   print('in searchTimer');
                 });
               },
@@ -60,8 +72,42 @@ class _SearchPageState extends State<SearchPage> {
                         builder: (context) => profilePage(profile)));
               },
             ),
-            Spacer(flex: 1),
-            
+            _profilesFound != null
+                ? Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: _profilesFound?.map<Widget>((profileAutoC) {
+                              print('profileAutoC:');
+                              print(profileAutoC);
+                              return InkWell(
+                                  onTap: () async {
+                                    var profile = await apiController.instance
+                                        .searchUser(profileAutoC['login']);
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                profilePage(profile)));
+                                  },
+                                  child: Card(
+                                      child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(profileAutoC['login']),
+                                      CircleAvatar(
+                                        backgroundImage:
+                                            profileAutoC['profilePicture'],
+                                        radius: 20,
+                                      ),
+                                    ],
+                                  )));
+                            }).toList() ??
+                            [],
+                      ),
+                    ),
+                  )
+                : Spacer(flex: 1),
           ],
         ),
       ),

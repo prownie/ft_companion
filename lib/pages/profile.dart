@@ -16,10 +16,11 @@ class profilePage extends StatefulWidget {
 }
 
 class _profilePageState extends State<profilePage> {
-  late int lastCursus;
+  late int actualCursus;
   late bool isFound = false;
   dynamic profileData;
   late double xpPercentage = 0.0;
+  late int level = 0;
   late ImageProvider profilePicture;
   dynamic coaData;
 
@@ -27,10 +28,9 @@ class _profilePageState extends State<profilePage> {
   void initState() {
     if (widget.profileData['id'] != 0) {
       profileData = widget.profileData;
-      isFound = true;
-      lastCursus = profileData['cursus_users'].length - 1;
-      xpPercentage = profileData['cursus_users'][lastCursus]['level'] -
-          profileData['cursus_users'][lastCursus]['level'].truncate();
+      actualCursus = profileData['cursus_users'].length - 1;
+      xpPercentage = profileData['cursus_users'][actualCursus]['level'] -
+          profileData['cursus_users'][actualCursus]['level'].truncate();
       profilePicture = profileData['image']['versions']['medium'] != null
           ? Image.network(profileData['image']['versions']['medium']).image
           : AssetImage('assets/profile-placeholder.jpg');
@@ -40,8 +40,15 @@ class _profilePageState extends State<profilePage> {
         if (value != null && value['name'] != null) {
           setState(() {
             coaData = value;
+            print(coaData['color']);
+            coaData['color'] = coaData['color'].replaceAll('#', '');
+            print(coaData['color']);
+            print(StringToHex.toColor(coaData['color']));
           });
         }
+      });
+      setState(() {
+        isFound = true;
       });
     }
   }
@@ -64,7 +71,7 @@ class _profilePageState extends State<profilePage> {
                 ),
                 Row(children: [
                   Padding(
-                    padding: EdgeInsets.only(left: 20, top: 20),
+                    padding: EdgeInsets.only(left: 10, top: 20),
                     child: Stack(
                       clipBehavior: Clip.none,
                       alignment: Alignment.center,
@@ -80,13 +87,28 @@ class _profilePageState extends State<profilePage> {
                     ),
                   ),
                   Padding(
-                      padding: EdgeInsets.only(left: 20, top: 20),
-                      child: Container(
+                    padding: EdgeInsets.only(left: 20, top: 20),
+                    child: Container(
+                      decoration: BoxDecoration(color: Colors.blue),
+                      child: oNeonContainer(
+                        borderColor:
+                            // Color(StringToHex.toColor(coaData['color'])),
+                            Colors.blue,
                         height: 130,
                         width: MediaQuery.of(context).size.width / 2,
                         child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Level'),
+                                  Text(profileData['cursus_users'][actualCursus]
+                                          ['level']
+                                      .toString()),
+                                ],
+                              ),
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -122,15 +144,12 @@ class _profilePageState extends State<profilePage> {
                                         Container(
                                           child: Row(
                                             children: [
-                                              Text('Coalitions'),
+                                              Text('Coa'),
                                               Container(
                                                   child: SvgPicture.network(
                                                 coaData['image_url'],
                                                 width: 40.0,
                                                 height: 40.0,
-                                                color: Color(
-                                                    StringToHex.toColor(
-                                                        coaData['color'])),
                                               )),
                                             ],
                                           ),
@@ -140,7 +159,9 @@ class _profilePageState extends State<profilePage> {
                                     )
                                   : SizedBox.shrink(),
                             ]),
-                      ))
+                      ),
+                    ),
+                  ),
                 ])
               ],
             ))
