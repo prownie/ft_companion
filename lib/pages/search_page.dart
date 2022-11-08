@@ -13,7 +13,7 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   Timer? _searchTimer;
-  List<dynamic>? _profilesFound;
+  List<dynamic> _profilesFound = [];
   String _value = '';
 
   @override
@@ -51,18 +51,24 @@ class _SearchPageState extends State<SearchPage> {
             oNeonSearchBar(
               hint: 'Search for a stud',
               borderWidth: 2,
-              borderColor: Colors.purple,
+              backgroundColor: Colors.grey.shade700,
+              borderColor: Colors.white,
+              spreadColor: Colors.grey.shade500,
               onSearchChanged: (value) {
-                print('on search changed, new value:');
                 if (_searchTimer != null) {
                   _searchTimer!.cancel();
                   _value = value!;
                 }
-                _searchTimer = Timer(Duration(seconds: 1), () async {
-                  initData(await apiController.instance
-                      .searchProfilesAutoCompletion(value!));
-                  print('in searchTimer');
-                });
+                if (value!.isNotEmpty)
+                  _searchTimer = Timer(Duration(milliseconds: 500), () async {
+                    initData(await apiController.instance
+                        .searchProfilesAutoCompletion(value!));
+                  });
+                else {
+                  setState(() {
+                    _profilesFound = [];
+                  });
+                }
               },
               onSearchTap: () async {
                 var profile = await apiController.instance.searchUser(_value);
@@ -72,7 +78,7 @@ class _SearchPageState extends State<SearchPage> {
                         builder: (context) => profilePage(profile)));
               },
             ),
-            _profilesFound != null
+            _profilesFound.length > 0
                 ? Expanded(
                     child: SingleChildScrollView(
                       child: Column(

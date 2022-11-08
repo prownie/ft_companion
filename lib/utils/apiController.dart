@@ -141,7 +141,11 @@ class apiController {
       }
       runningRequests--;
       if (response.statusCode == 200) {
-        return await jsonDecode(response.body)[0];
+        dynamic rep = await jsonDecode(response.body);
+        if (rep.length > 0) {
+          return rep[0];
+        }
+        return {'name': null};
       } else if (response.statusCode == 401) {
         await getToken();
         return await getCoalitionsData(value);

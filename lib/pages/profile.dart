@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:ft_companion/utils/draw_xp.dart';
+import 'package:ft_companion/customWidgets/customWidgets.dart';
+import 'package:ft_companion/utils/utils.dart';
 import 'package:neon_widgets/neon_widgets.dart';
 import 'dart:math';
 import '../utils/utils.dart';
@@ -18,11 +19,13 @@ class profilePage extends StatefulWidget {
 class _profilePageState extends State<profilePage> {
   late int actualCursus;
   late bool isFound = false;
+  late bool isLoading = true;
   dynamic profileData;
   late double xpPercentage = 0.0;
   late int level = 0;
   late ImageProvider profilePicture;
   dynamic coaData;
+  List<dynamic> projects = [];
 
   @override
   void initState() {
@@ -40,15 +43,14 @@ class _profilePageState extends State<profilePage> {
         if (value != null && value['name'] != null) {
           setState(() {
             coaData = value;
-            print(coaData['color']);
-            coaData['color'] = coaData['color'].replaceAll('#', '');
-            print(coaData['color']);
-            print(StringToHex.toColor(coaData['color']));
+            coaData['color'] =
+                int.parse(coaData['color'].replaceAll('#', 'FF'), radix: 16);
           });
         }
-      });
-      setState(() {
-        isFound = true;
+        setState(() {
+          isLoading = false;
+          isFound = true;
+        });
       });
     }
   }
@@ -58,123 +60,144 @@ class _profilePageState extends State<profilePage> {
     return Scaffold(
       appBar: oAppBar(context: context, heading: 'Swifty_companion'),
       body: isFound
-          ? oNeonContainer(
+          ? SingleChildScrollView(
               child: Column(
-              children: [
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  child: Text(
-                    profileData['usual_full_name'],
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 24),
+                children: [
+                  Divider(
+                    thickness: 1,
                   ),
-                ),
-                Row(children: [
-                  Padding(
-                    padding: EdgeInsets.only(left: 10, top: 20),
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      alignment: Alignment.center,
-                      children: [
-                        CustomPaint(
-                          painter: drawXp(xpPercentage * 100),
-                        ),
-                        CircleAvatar(
-                          backgroundImage: profilePicture,
-                          radius: 65,
-                        ),
-                      ],
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    child: Text(
+                      profileData['usual_full_name'],
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 24),
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 20, top: 20),
-                    child: Container(
-                      decoration: BoxDecoration(color: Colors.blue),
-                      child: oNeonContainer(
-                        borderColor:
-                            // Color(StringToHex.toColor(coaData['color'])),
-                            Colors.blue,
-                        height: 130,
-                        width: MediaQuery.of(context).size.width / 2,
-                        child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Level'),
-                                  Text(profileData['cursus_users'][actualCursus]
-                                          ['level']
-                                      .toString()),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Wallets'),
-                                  Text(profileData['wallet'].toString()),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Evaluation Points'),
-                                  Text(profileData['correction_point']
-                                      .toString()),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Location'),
-                                  profileData['location'] != null
-                                      ? Text(profileData['location'].toString())
-                                      : Text('Not connected'),
-                                ],
-                              ),
-                              coaData != null
-                                  ? Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Container(
-                                          child: Row(
-                                            children: [
-                                              Text('Coa'),
-                                              Container(
-                                                  child: SvgPicture.network(
-                                                coaData['image_url'],
-                                                width: 40.0,
-                                                height: 40.0,
-                                              )),
-                                            ],
-                                          ),
-                                        ),
-                                        Text(coaData['name']),
-                                      ],
-                                    )
-                                  : SizedBox.shrink(),
-                            ]),
+                  Row(children: [
+                    Padding(
+                      padding: EdgeInsets.only(left: 10, top: 20),
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        alignment: Alignment.center,
+                        children: [
+                          CustomPaint(
+                            painter: drawXp(
+                                xpPercentage * 100,
+                                coaData != null
+                                    ? Color(coaData['color'])
+                                    : Colors.white),
+                          ),
+                          CircleAvatar(
+                            backgroundImage: profilePicture,
+                            radius: 65,
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ])
-              ],
-            ))
-          : oNeonContainer(
-              child: Row(
-                children: [
-                  Spacer(),
-                  Column(
-                      children: [Spacer(), Text('User not found'), Spacer()]),
-                  Spacer(),
+                    Padding(
+                      padding: EdgeInsets.only(left: 20, top: 20),
+                      child: Container(
+                        child: Container(
+                          height: 130,
+                          width: MediaQuery.of(context).size.width / 2,
+                          child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text('Level'),
+                                    Text(profileData['cursus_users']
+                                            [actualCursus]['level']
+                                        .toString()),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text('Wallets'),
+                                    Text(profileData['wallet'].toString()),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text('Evaluation Points'),
+                                    Text(profileData['correction_point']
+                                        .toString()),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text('Location'),
+                                    profileData['location'] != null
+                                        ? Text(
+                                            profileData['location'].toString())
+                                        : Text('Not connected'),
+                                  ],
+                                ),
+                                coaData != null
+                                    ? Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(
+                                            child: Row(
+                                              children: [
+                                                Text('Coa'),
+                                                Container(
+                                                    child: SvgPicture.network(
+                                                  coaData['image_url'],
+                                                  color:
+                                                      Color(coaData['color']),
+                                                  width: 30.0,
+                                                  height: 30.0,
+                                                )),
+                                              ],
+                                            ),
+                                          ),
+                                          Text(coaData['name']),
+                                        ],
+                                      )
+                                    : SizedBox.shrink(),
+                              ]),
+                        ),
+                      ),
+                    ),
+                  ]),
+                  projectsList(projects)
                 ],
               ),
-            ),
+            )
+          : isLoading
+              ? Container(
+                  child: Row(
+                    children: [
+                      Spacer(),
+                      Column(children: [Spacer(), Text('Loading'), Spacer()]),
+                      Spacer(),
+                    ],
+                  ),
+                )
+              : Container(
+                  child: Row(
+                    children: [
+                      Spacer(),
+                      Column(children: [
+                        Spacer(),
+                        Text('User not found'),
+                        Spacer()
+                      ]),
+                      Spacer(),
+                    ],
+                  ),
+                ),
     );
   }
 }

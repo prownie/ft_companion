@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 
 class drawXp extends CustomPainter {
-  drawXp(this.xpPercentage);
+  drawXp(this.xpPercentage, this.coaColor);
 
   double xpPercentage;
+  dynamic coaColor;
 
   void _drawArcWithCenter(
     Canvas canvas,
@@ -27,7 +28,7 @@ class drawXp extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     var paint = Paint()
-      ..color = Colors.white
+      ..color = coaColor
       ..strokeWidth = 10.0;
     _drawArcWithCenter(canvas, paint,
         center: Offset(0, 0),
