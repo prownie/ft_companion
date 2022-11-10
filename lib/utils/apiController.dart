@@ -24,7 +24,6 @@ class apiController {
 
   getToken() async {
     try {
-      print('in get token');
       if (runningRequests < 2) {
         runningRequests++;
         var response = await http.post(Uri.https(url42, '/oauth/token'), body: {
@@ -52,7 +51,6 @@ class apiController {
 
   Future<List<dynamic>> searchProfilesAutoCompletion(String value) async {
     //retrieve all users whose login starts with "value"
-    print('in searchProfilesAutoCompletion');
     if (runningRequests < 2) {
       runningRequests++;
       var response = await http.get(
@@ -86,7 +84,6 @@ class apiController {
 
   Future<dynamic> searchUser(String value, {int retry = 0}) async {
     //retrieve all users whose login starts with "value"
-    print('in searchUser');
     if (runningRequests < 2) {
       runningRequests++;
       var response = await http.get(
@@ -108,7 +105,6 @@ class apiController {
         return await searchUser(value);
       } else if (response.statusCode == 429) {
         if (retry < 5) {
-          print('retrySearchUser');
           sleep(const Duration(seconds: 1));
           return await searchUser(value, retry: retry + 1);
         } else {
@@ -125,7 +121,6 @@ class apiController {
 
   Future<dynamic> getCoalitionsData(String value, {int retry = 0}) async {
     //retrieve all users whose login starts with "value"
-    print('in getCoalitionsData');
     if (runningRequests < 2) {
       runningRequests++;
       var response = await http.get(

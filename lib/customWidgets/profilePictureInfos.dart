@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:ft_companion/utils/utils.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class MyWidget extends StatelessWidget {
-  MyWidget(this.profilePicture, this.coaData, this.profileData, {super.key}) {
+class profilePictureInfos extends StatelessWidget {
+  profilePictureInfos(this.coaData, this.profileData, {super.key}) {
     actualCursus = profileData['cursus_users'].length - 1;
     xpPercentage = profileData['cursus_users'][actualCursus]['level'] -
         profileData['cursus_users'][actualCursus]['level'].truncate();
+    profilePicture = profileData['image']['versions']['medium'] != null
+        ? Image.network(profileData['image']['versions']['medium']).image
+        : AssetImage('assets/profile-placeholder.jpg');
   }
   late int actualCursus;
   late double xpPercentage;
@@ -17,7 +20,7 @@ class MyWidget extends StatelessWidget {
   late dynamic profileData;
   @override
   Widget build(BuildContext context) {
-    return Row(children: [
+    return Column(children: [
       Padding(
         padding: EdgeInsets.only(left: 10, top: 20),
         child: Stack(
@@ -36,43 +39,90 @@ class MyWidget extends StatelessWidget {
         ),
       ),
       Padding(
-        padding: EdgeInsets.only(left: 20, top: 20),
+        padding: EdgeInsets.only(left: 20, top: 20, right: 20),
         child: Container(
+          padding: EdgeInsets.all(5),
+          decoration: BoxDecoration(
+              border: Border.all(
+                  width: 3,
+                  color:
+                      coaData != null ? Color(coaData['color']) : Colors.white),
+              borderRadius: BorderRadius.circular(12)),
           child: Container(
-            height: 130,
-            width: MediaQuery.of(context).size.width / 2,
+            height: 150,
+            width: MediaQuery.of(context).size.width,
             child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Level'),
-                      Text(profileData['cursus_users'][actualCursus]['level']
-                          .toString()),
+                      Row(children: [
+                        Icon(Icons.coffee_rounded,
+                            color: coaData != null
+                                ? Color(coaData['color'])
+                                : Colors.white),
+                        SizedBox(width: 5),
+                        Text('Level',
+                            style: TextStyle(fontSize: 17, color: Colors.white))
+                      ]),
+                      Text(
+                          profileData['cursus_users'][actualCursus]['level']
+                              .toString(),
+                          style: TextStyle(fontSize: 17, color: Colors.white)),
                     ],
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Wallets'),
-                      Text(profileData['wallet'].toString()),
+                      Row(children: [
+                        Icon(Icons.attach_money_rounded,
+                            color: coaData != null
+                                ? Color(coaData['color'])
+                                : Colors.white),
+                        SizedBox(width: 5),
+                        Text('Wallets',
+                            style: TextStyle(fontSize: 17, color: Colors.white))
+                      ]),
+                      Text(profileData['wallet'].toString(),
+                          style: TextStyle(fontSize: 17, color: Colors.white)),
                     ],
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Evaluation Points'),
-                      Text(profileData['correction_point'].toString()),
+                      Row(children: [
+                        Icon(Icons.currency_exchange_rounded,
+                            color: coaData != null
+                                ? Color(coaData['color'])
+                                : Colors.white),
+                        SizedBox(width: 5),
+                        Text('Evaluation Points',
+                            style: TextStyle(fontSize: 17, color: Colors.white))
+                      ]),
+                      Text(profileData['correction_point'].toString(),
+                          style: TextStyle(fontSize: 17, color: Colors.white)),
                     ],
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Location'),
+                      Row(children: [
+                        Icon(Icons.house_rounded,
+                            color: coaData != null
+                                ? Color(coaData['color'])
+                                : Colors.white),
+                        SizedBox(width: 5),
+                        Text('Location',
+                            style: TextStyle(fontSize: 17, color: Colors.white))
+                      ]),
                       profileData['location'] != null
-                          ? Text(profileData['location'].toString())
-                          : Text('Not connected'),
+                          ? Text(profileData['location'].toString(),
+                              style:
+                                  TextStyle(fontSize: 17, color: Colors.white))
+                          : Text('Not connected',
+                              style:
+                                  TextStyle(fontSize: 17, color: Colors.white)),
                     ],
                   ),
                   coaData != null
@@ -82,18 +132,24 @@ class MyWidget extends StatelessWidget {
                             Container(
                               child: Row(
                                 children: [
-                                  Text('Coa'),
                                   Container(
                                       child: SvgPicture.network(
                                     coaData['image_url'],
-                                    color: Color(coaData['color']),
-                                    width: 30.0,
-                                    height: 30.0,
+                                    color:
+                                        Color(coaData['color'] ?? Colors.white),
+                                    width: 24.0,
+                                    height: 24.0,
                                   )),
+                                  SizedBox(width: 5),
+                                  Text('Coa',
+                                      style: TextStyle(
+                                          fontSize: 17, color: Colors.white)),
                                 ],
                               ),
                             ),
-                            Text(coaData['name']),
+                            Text(coaData['name'],
+                                style: TextStyle(
+                                    fontSize: 17, color: Colors.white)),
                           ],
                         )
                       : SizedBox.shrink(),

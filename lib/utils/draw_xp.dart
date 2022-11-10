@@ -27,14 +27,30 @@ class drawXp extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    var paint = Paint()
-      ..color = coaColor
-      ..strokeWidth = 10.0;
+    var paint = Paint()..color = coaColor;
     _drawArcWithCenter(canvas, paint,
-        center: Offset(0, 0),
-        radius: 70,
+        center: const Offset(0, 0),
+        radius: 73,
         startRadian: -pi / 2,
         sweepRadian: xpPercentage * 3.6 * pi / 180);
+    var paint2 = Paint()
+      ..color = coaColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    canvas.drawArc(
+      Rect.fromCircle(center: const Offset(0, 0), radius: 73),
+      0,
+      2 * pi,
+      false,
+      paint2,
+    );
+    canvas.drawArc(
+      Rect.fromCircle(center: const Offset(0, 0), radius: 66),
+      0,
+      2 * pi,
+      false,
+      paint2,
+    );
   }
 
   @override

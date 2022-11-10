@@ -24,13 +24,20 @@ class _SearchPageState extends State<SearchPage> {
   void initData(List<dynamic> profilesFound) {
     _profilesFound != null ? _profilesFound!.clear() : "";
     List<dynamic> tmp = [];
-    late ImageProvider profilePicture;
-    for (dynamic profile in profilesFound) {
-      profilePicture = profile['image']['versions']['medium'] != null
-          ? Image.network(profile['image']['versions']['medium']).image
-          : AssetImage('assets/profile-placeholder.jpg');
-      tmp.add({'login': profile['login'], 'profilePicture': profilePicture});
+    try {
+      late ImageProvider profilePicture;
+      for (dynamic profile in profilesFound) {
+        profilePicture = profile['image']['versions']['medium'] != null
+            ? Image.network(
+                profile['image']['versions']['medium'],
+              ).image
+            : AssetImage('assets/profile-placeholder.jpg');
+        tmp.add({'login': profile['login'], 'profilePicture': profilePicture});
+      }
+    } catch (e) {
+      print('exception captured, but np');
     }
+
     setState(() {
       _profilesFound = tmp;
     });
@@ -39,20 +46,22 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: oAppBar(
-        icon: Icons.person_search_rounded,
-        onTap: () {},
-        context: context,
-        heading: 'Swifty_companion',
-      ),
+      resizeToAvoidBottomInset: false,
       body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/duneWallpaper.jpg"),
+            fit: BoxFit.fill,
+          ),
+        ),
         child: Column(
           children: [
             oNeonSearchBar(
+              margin: EdgeInsets.symmetric(vertical: 25),
               hint: 'Search for a stud',
               borderWidth: 2,
               backgroundColor: Colors.grey.shade700,
-              borderColor: Colors.white,
+              borderColor: Colors.black,
               spreadColor: Colors.grey.shade500,
               onSearchChanged: (value) {
                 if (_searchTimer != null) {
@@ -73,43 +82,59 @@ class _SearchPageState extends State<SearchPage> {
               onSearchTap: () async {
                 var profile = await apiController.instance.searchUser(_value);
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => profilePage(profile)));
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => profilePage(profile),
+                  ),
+                );
               },
             ),
             _profilesFound.length > 0
                 ? Expanded(
                     child: SingleChildScrollView(
                       child: Column(
-                        children: _profilesFound?.map<Widget>((profileAutoC) {
-                              print('profileAutoC:');
-                              print(profileAutoC);
-                              return InkWell(
-                                  onTap: () async {
-                                    var profile = await apiController.instance
-                                        .searchUser(profileAutoC['login']);
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                profilePage(profile)));
-                                  },
-                                  child: Card(
-                                      child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(profileAutoC['login']),
-                                      CircleAvatar(
-                                        backgroundImage:
-                                            profileAutoC['profilePicture'],
-                                        radius: 20,
-                                      ),
-                                    ],
-                                  )));
-                            }).toList() ??
-                            [],
+                        children: _profilesFound.map<Widget>((profileAutoC) {
+                          return InkWell(
+                            onTap: () async {
+                              var profile = await apiController.instance
+                                  .searchUser(profileAutoC['login']);
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          profilePage(profile)));
+                            },
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(
+                                  color: Theme.of(context).colorScheme.outline,
+                                ),
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(12)),
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 8.0, vertical: 8.0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      profileAutoC['login'],
+                                      style: TextStyle(
+                                          fontSize: 20, color: Colors.white),
+                                    ),
+                                    CircleAvatar(
+                                      backgroundImage:
+                                          profileAutoC['profilePicture'],
+                                      radius: 30,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
                       ),
                     ),
                   )
